@@ -1,0 +1,33 @@
+# Graphing chlorophyll over time
+
+# Sorting our data (METHOD 1):
+# Positive slope = data we want ??? (ask Jordan about this)
+# Put it in a new dataset of just what we want
+# Cut different columns and rows out based on profile data
+
+# Criteria for thin layers:
+
+# Establish the peak (METHOD 2)
+# If the peak concentration is 3X the background (background in avg concentration)
+# Average all data and see where it peaks or not
+# Return true or false (boolean varoable)
+
+# Less than 5m thick (METHOD 3)
+# Should be pretty easy
+# Should return true or false (boolean variable)
+
+# Assuming both the above methods are true, is it a pattern (METHOD 4)
+# Above methods return true for >= 2 profiles in a row (!!!!!)
+# Call above methods
+# Make a count variable
+# Return true or false (boolean variable)
+
+# Create a new dataframe of just true data, then call it to graph
+
+# Next steps :
+# Get Jordan on the call
+# Get CSV file situation figured out
+# Figure out the profile (up or down)
+# Ask about negative or positive slope
+# Maybe the one going down (slope situation here)
+

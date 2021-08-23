@@ -1,0 +1,52 @@
+# load packages
+library(tidyverse)
+library(ncdf4)
+#library(raster) #not sure if I need this
+l#ibrary(rgdal) #not sure if I need this
+
+#check variable names
+nc_data <- nc_open("~/Downloads/flor_20190616-20190916.nc")
+#View(nc_data$var)
+
+#create basic dataframe
+fluoro <- NULL
+fluoro$fluoro_a <- ncvar_get(nc_data, "fluorometric_chlorophyll_a")
+fluoro <- as.data.frame(fluoro)
+fluoro$time <- ncvar_get(nc_data, "time")
+fluoro$time <- as.POSIXct(fluoro$time,origin="1900-01-02")
+fluoro$pressure <- ncvar_get(nc_data, "int_ctd_pressure")
+
+#plot all fluoro data
+png("~/Downloads/all_fluoro.png",width=12, height=12, unit="in", res=100)
+a <- ggplot(fluoro)+geom_point(aes(x=fluoro_a,y=pressure))+theme_bw()+scale_y_reverse()+xlab("Chlorophyll a fluorescence (mg/m^3)")+ylab("Pressure")
+a
+dev.off()
+
+#plot month of August
+time1 <- "2019-08-01 00:00:00"
+time2 <- "2019-08-31 23:59:59"
+fluoro_august <- subset(fluoro, time > time1)
+fluoro_august <- subset(fluoro_august, time < time2)
+png("~/Downloads/august_fluoro.png",width=12, height=12, unit="in", res=100)
+b <- ggplot(fluoro_august)+geom_point(aes(x=fluoro_a,y=pressure))+theme_bw()+scale_y_reverse()+xlab("Chlorophyll a fluorescence (mg/m^3)")+ylab("Pressure")
+b
+dev.off()
+
+#plot first week of August
+time3 <- "2019-08-07 23:59:59"
+fluoro_august_wk <- subset(fluoro_august, time < time3)
+png("~/Downloads/august1to7_fluoro.png",width=12, height=12, unit="in", res=100)
+c <- ggplot(fluoro_august_wk)+geom_point(aes(x=fluoro_a,y=pressure))+theme_bw()+scale_y_reverse()+xlab("Chlorophyll a fluorescence (mg/m^3)")+ylab("Pressure")
+c
+dev.off()
+
+#plot August 5
+time4 <- "2019-08-05 00:00:00"
+time5 <- "2019-08-05 23:59:59"
+fluoro_august_5 <- subset(fluoro_august, time > time4)
+fluoro_august_5 <- subset(fluoro_august_5, time < time5)
+png("~/Downloads/august5_fluoro.png",width=12, height=12, unit="in", res=100)
+d <- ggplot(fluoro_august_5)+geom_point(aes(x=fluoro_a,y=pressure))+theme_bw()+scale_y_reverse()+xlab("Chlorophyll a fluorescence (mg/m^3)")+ylab("Pressure")
+d
+dev.off()
+
