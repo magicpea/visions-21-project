@@ -2,12 +2,9 @@
 library(tidyverse)
 library(ncdf4)
 library(IDPmisc)
-#library(raster) #not sure if I need this
-#library(rgdal) #not sure if I need this
 
-#check variable names
-nc_data <- nc_open("~/Downloads/flor_20190616-20190916.nc")
-#View(nc_data$var)
+#get files
+nc_data <- nc_open("~/Downloads/flor_20190616-20190916.nc") #depends on your directory
 
 #create basic dataframe
 fluoro <- NULL
@@ -17,15 +14,63 @@ fluoro$time <- ncvar_get(nc_data, "time")
 fluoro$time <- as.POSIXct(fluoro$time,origin="1900-01-02")
 fluoro$pressure <- ncvar_get(nc_data, "int_ctd_pressure")
 
-#separate out profiles
-??
+#add in separated out profiles from CSV
+all <- read.csv("~/Downloads/ocean-main/profiles/osb2019.csv") #depends on your directory
+profiles <- NULL
+profiles$start_ascent <- all$X1
+profiles$end_ascent <- all$X3
+profiles <- as.data.frame(profiles)
+profiles$start_ascent <- as.POSIXct(profiles$start_ascent, format = "%Y-%m-%d %H:%M:%S")
+profiles$end_ascent <- as.POSIXct(profiles$end_ascent, format = "%Y-%m-%d %H:%M:%S")
 
-#for loop that flags potential thin layers
-profile_list <- unique(fluoro$profile_separate)
+# subset 8 days in March (1st through 9th)
+time1 <- "2021-03-01 00:00:00"
+time2 <- "2021-03-09 23:59:59"
+time1 <- "2019-06-18 00:00:00"
+time2 <- "2019-06-25 23:59:59"
+profiles <- subset(profiles, start_ascent > time1 & end_ascent < time2)
+fluoro <- subset(fluoro, time > time1 & time < time2)
+fluoro$profile <- "none"
+
+# add start times to dataframe
+profile_start <- unique(profiles$start_ascent)
+for (i in 1:length(profile_start)){
+  timestamp <- profile_start[i]
+  ind <- which.min(abs(fluoro$time - timestamp))
+  fluoro[ind,]$profile <- "start"
+}
+
+# add end times to dataframe
+profile_end <- unique(profiles$end_ascent)
+for (i in 1:length(profile_end)){
+  timestamp <- profile_end[i]
+  ind <- which.min(abs(fluoro$time - timestamp))
+  fluoro[ind,]$profile <- "end"
+}
+
+# add column for profile number
+fluoro$profile_separate <- "none"
+small_dataset <- NULL
+start_ind <- which(fluoro$profile == "start")
+end_ind <- which(fluoro$profile == "end")
+for (start_index in start_ind){
+  print(start_index)
+  profile_start <- fluoro[start_index,]
+  closest <- end_ind - start_index
+  number <- min(closest[closest > 0])
+  end_index <- which(closest == number)
+  end_index_real <- end_ind[end_index]
+  smaller_dataset <- fluoro[start_index:end_index_real,]
+  smaller_dataset$profile_separate <- start_index
+  small_dataset <- rbind(smaller_dataset, small_dataset)
+}
+
+# for loop that flags potential thin layers
+profile_list <- unique(small_dataset$profile_separate)
 potential_thin_layers <- NULL
 for (profile in profile_list){
   print(profile)
-  fluoro_small <- subset(fluoro, profile_separate == profile)
+  fluoro_small <- small_dataset[small_dataset$profile_separate == profile,]
   avg_chl <- mean(fluoro_small$fluoro_a)
   peak_chl <- max(fluoro_small$fluoro_a)
   if (peak_chl >= 3*avg_chl){
@@ -41,6 +86,7 @@ for (profile in profile_list){
       to_bind$avg_chl <- avg_chl
       to_bind$peak_chl <- peak_chl
       to_bind$peak_width <- peak_width
+      to_bind <- as.data.frame(to_bind)
       potential_thin_layers <- rbind(potential_thin_layers, to_bind)
     }
   }
