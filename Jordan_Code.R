@@ -24,8 +24,8 @@ profiles$start_ascent <- as.POSIXct(profiles$start_ascent, format = "%Y-%m-%d %H
 profiles$end_ascent <- as.POSIXct(profiles$end_ascent, format = "%Y-%m-%d %H:%M:%S")
 
 # subset 8 days in March (1st through 9th)
-time1 <- "2021-03-01 00:00:00"
-time2 <- "2021-03-09 23:59:59"
+# time1 <- "2021-03-01 00:00:00"
+# time2 <- "2021-03-09 23:59:59"
 time1 <- "2019-06-18 00:00:00"
 time2 <- "2019-06-25 23:59:59"
 profiles <- subset(profiles, start_ascent > time1 & end_ascent < time2)
@@ -64,6 +64,14 @@ for (start_index in start_ind){
   smaller_dataset$profile_separate <- start_index
   small_dataset <- rbind(smaller_dataset, small_dataset)
 }
+
+# make profiles sequential
+profile_separate <- unique(small_dataset$profile_separate)
+list_numbers <- c(1:length(profile_separate))
+profile_separate <- as.data.frame(profile_separate)
+profile_separate$list_numbers <- list_numbers
+list_profiles <- profile_separate
+small_dataset <- merge(small_dataset, list_profiles, by = "profile_separate")
 
 # for loop that flags potential thin layers
 profile_list <- unique(small_dataset$profile_separate)
@@ -152,3 +160,16 @@ thin_layers <- write.csv(thin_layers, "~/Downloads/thin_layers.csv")
 # dev.off()
 
 #could bin according to profile number and then use that as the legend
+
+## THE CODE BELOW DOESN'T WORK
+#fluoro_august_5$profile <- NULL
+#for (i in 1:(nrow(fluoro_august_5 -1))){
+  #if (fluoro_august_5$pressure[i+1] - fluoro_august_5$pressure[i] < -20)
+    #fluoro_august_5$profile[i] <- "no"
+  #else fluoro_august_5$profile[i] <- "same_profile"
+#}
+
+#check <- subset(fluoro_august_5, profile == "no")
+
+#deep_fluoro_aug5 <- subset(fluoro_august_5, pressure > 185)
+#ggplot(deep_fluoro_aug5)+geom_path(aes(x=fluoro_a,y=pressure))+theme_bw()+scale_y_reverse()+xlab("Chlorophyll a fluorescence (mg/m^3)")+ylab("Depth (m)")
