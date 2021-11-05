@@ -10,18 +10,36 @@
 # Establish the peak (METHOD 2)
 # If the peak concentration is 3X the background (background in avg concentration)
 # Average all data and see where it peaks or not
-# Return true or false (boolean varoable)
+# Return true or false (boolean variable)
 
+# use chlorohpyll and avg concentration
+peak_concentration_check <- function(peak_con, back_con, df) {
+  # find avg too
+  if ((back_con * 3) == peak_con) {
+    return(TRUE);
+  } else {
+    return(FALSE);
+  }
+}
 # Less than 5m thick (METHOD 3)
 # Should be pretty easy
 # Should return true or false (boolean variable)
-
+# chlorophyll peaks first 
+how_thick_check -> function(thickness, df) {
+  if (thickness < 5) {
+    return (TRUE);
+  } else {
+    return (FALSE);
+  }
+}
 # Assuming both the above methods are true, is it a pattern (METHOD 4)
 # Above methods return true for >= 2 profiles in a row (!!!!!)
 # Call above methods
 # Make a count variable
 # Return true or false (boolean variable)
-
+is_pattern -> function(df) {
+  conc_check 
+}
 # Create a new dataframe of just true data, then call it to graph
 
 # Next steps :

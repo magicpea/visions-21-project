@@ -1,0 +1,192 @@
+# A4 Data Wrangling
+
+# We provide this line to delete all variables in your workspace.
+# This will make it easier to test your script.
+rm(list = ls())
+
+# Loading and Exploring Data -------------------------------- (**28 points**)
+
+# To begin, you'll need to download the Kickstarter Projects data from the
+# Kaggle website: https://www.kaggle.com/kemical/kickstarter-projects
+# Download the `ks-projects-201801.csv` file into a new folder called `data/`
+
+# Load the `dplyr` package
+install.packages("dplyr")
+# We provide this code to make sure your locale is in English so that
+# files will be read correctly
+Sys.setlocale("LC_ALL", "English")
+# Load your data, making sure to not interpret strings as factors.
+new_df <- read.csv("data/ks-projects-201801.csv", stringsAsFactors = FALSE)
+# To start, write the code to get some basic information about the dataframe:
+# - What are the column names?
+# - How many rows is the data frame?
+# - How many columns are in the data frame?
+names <- colnames(new_df)
+# The column names are "ID," "name," "category," "main_category," "currency,"
+# "deadline," "goal," "launched," "pledged," "state," "backers," "country,"
+# "usd.pledged," "usd_pledged_real," and "usd_goal_real"
+num_row <- nrow(new_df)
+# There are 378661 rows
+num_col <- ncol(new_df)
+# There are 15 columns
+# Use the `summary` function to get some summary information
+summary(new_df)
+# Unfortunately, this doesn't give us a great set of insights. Let's write a
+# few functions to try and do this better.
+# First, let's write a function `get_col_info()` that takes as parameters a
+# column name and a dataframe. If the values in the column are *numeric*,
+# the function should return a list with the keys:
+# - `min`: the minimum value of the column
+# - `max`: the maximum value of the column
+# - `mean`: the mean value of the column
+# If the column is *not* numeric and there are fewer than 10 unique values in
+# the column, you should return a list with the keys:
+# - `n_values`: the number of unique values in the column
+# - `unique_values`: a vector of each unique value in the column
+# If the column is *not* numeric and there are 10 or *more* unique values in
+# the column, you should return a list with the keys:
+# - `n_values`: the number of unique values in the column
+# - `sample_values`: a vector containing a random sample of 10 column values
+# Hint: use `typeof()` to determine the column type
+get_col_info <- function(col_name, df) {
+  vect <- pull(df, col_name)
+  if (typeof(vect) == "double" | typeof(vect) == "integer") {
+    list(
+      min = min(vect, na.rm = TRUE),
+      max = max(vect, na.rm = TRUE),
+      mean = mean(vect, na.rm = TRUE)
+    )
+  } else if (length(unique(vect)) < 10) {
+    list(
+      n_values = length(unique(vect)),
+      unique_values = unique(vect)
+    )
+  } else if (length(unique(vect)) >= 10) {
+    list(
+      n_values = length(unique(vect)),
+      sample_values = sample(vect, 10)
+    )
+  }
+}
+# Demonstrate that your function works by passing a column name of your choice
+# and the kickstarter data to your function. Store the result in a variable
+# with a meaningful name
+backers_info <- get_col_info("backers", new_df)
+# To take this one step further, write a function `get_summary_info()`,
+# that takes in a data frame  and returns a *list* of information for each
+# column (where the *keys* of the returned list are the column names, and the
+# _values_ are the summary information returned by the `get_col_info()` function
+# The suggested approach is to use the appropriate `*apply` method to
+# do this, though you can write a loop
+get_summary_info <- function(df) {
+  sapply(colnames(df), get_col_info, df)
+}
+# Demonstrate that your function works by passing the kickstarter data
+# into it and saving the result in a variable
+data_summary <- get_summary_info(new_df)
+# Take note of 3 observations that you find interesting from this summary
+# information (and/or questions that arise that want to investigate further)
+# Observation 1: I did not realize that there were more states than just
+# 'successful and 'failed', it is interesting that 'canceled', 'live',
+# 'undefined', and 'suspended' are also states
+# Observation 2: It is interesting to note that at least one country had no
+# backers, because the min was 0, very sad :(
+# Observation 3: There are 14 unique values of currency in the dataset,
+# pretty cool
+# Asking questions of the data ----------------------------- (**29 points**)
+
+# Write the appropriate dplyr code to answer each one of the following questions
+# Make sure to return (only) the desired value of interest (e.g., use `pull()`)
+# Store the result of each question in a variable with a clear + expressive name
+# If there are multiple observations that meet each condition, the results
+# can be in a vector. Make sure to *handle NA values* throughout!
+# You should answer each question using a single statement with multiple pipe
+# operations!
+
+# What was the name of the project(s) with the highest goal?
+highest_goal <- filter(new_df, usd_goal_real ==
+  max(usd_goal_real, na.rm = TRUE)) %>%
+  pull(name)
+# What was the category of the project(s) with the lowest goal?
+lowest_goal <- filter(new_df, usd_goal_real ==
+  min(usd_goal_real, na.rm = TRUE)) %>%
+  pull(category)
+# How many projects had a deadline in 2018?
+# Hint: start by googling "r get year from date" and then look up more about
+# different functions you find
+deadlines_2018 <- nrow(filter(new_df, substr(deadline, 1, 4) == "2018"))
+# What proportion or projects weren't successful? Your result can be a decimal
+not_successful <- nrow(filter(new_df, state != "successful")) /
+  nrow(select(new_df, state))
+# What was the amount pledged for the project with the most backers?
+most_backers <- filter(new_df, backers == max(backers, na.rm = TRUE)) %>%
+  pull(usd_pledged_real)
+# Of all of the projects that *failed*, what was the name of the project with
+# the highest amount of money pledged?
+highest_pledged_of_failed <- filter(new_df, state == "failed") %>%
+  filter(usd_pledged_real == max(usd_pledged_real, na.rm = TRUE)) %>%
+  pull(name)
+# How much total money was pledged to projects that weren't successful?
+total_pledged_of_failed <- sum(filter(new_df, state != "successful") %>%
+  pull(usd_pledged_real))
+# Performing analysis by *grouped* observations ----------------- (38 Points)
+
+# Which category had the most money pledged (total)?
+most_pledged_category <- new_df %>%
+  group_by(category) %>%
+  summarise(money_pledged = sum(usd_pledged_real, na.rm = TRUE)) %>%
+  filter(money_pledged == max(money_pledged, na.rm = TRUE)) %>%
+  select(category, money_pledged) %>%
+  pull(category)
+# Which country had the most backers?
+most_backers_country <- new_df %>%
+  group_by(country) %>%
+  summarise(total_backers = sum(backers, na.rm = TRUE)) %>%
+  filter(total_backers == max(total_backers, na.rm = TRUE)) %>%
+  select(country, total_backers) %>%
+  pull(country)
+# Which year had the most money pledged (hint: you may have to create a new
+# column)?
+most_pledged_year <- new_df %>%
+  mutate(year = substr(launched, 1, 4)) %>%
+  group_by(year) %>%
+  summarise(most = sum(usd_pledged_real, na.rm = TRUE)) %>%
+  filter(most == max(most, na.rm = TRUE)) %>%
+  select(year, most) %>%
+  pull(year)
+# What were the top 3 main categories in 2018 (as ranked by number of backers)?
+top_3_cat <- new_df %>%
+  mutate(year = substr(deadline, 1, 4)) %>%
+  filter(year == "2018") %>%
+  group_by(main_category) %>%
+  summarise(top_backers = sum(backers)) %>%
+  arrange(-top_backers) %>%
+  slice(1:3) %>%
+  pull(main_category)
+# What was the most common day of the week on which to launch a project?
+# (return the name of the day, e.g. "Sunday", "Monday"....)
+most_common_day <- new_df %>%
+  mutate(day = weekdays(as.Date(substr(launched, 1, 10), "%Y-%m-%d"))) %>%
+  group_by(day) %>%
+  mutate(num_count = n()) %>%
+  arrange(-num_count) %>%
+  summarise(top_count = max(num_count, na.rm = TRUE)) %>%
+  filter(top_count == max(top_count, na.rm = TRUE)) %>%
+  select(day, top_count) %>%
+  pull(day)
+# What was the least successful day on which to launch a project? In other
+# words, which day had the lowest success rate (lowest proportion of projects
+# that were successful)? This might require some creative problem solving....
+# Hint: Try googling "r summarize with condition in dplyr"
+least_successful_day <- new_df %>%
+  mutate(day = weekdays(as.Date(substr(launched, 1, 10), "%Y-%m-%d"))) %>%
+  group_by(day) %>%
+  summarise(
+    count = n(), successful_count =
+      length(day[state == "successful"])
+  ) %>%
+  mutate(success_rate = 100 * (successful_count / count)) %>%
+  arrange(success_rate) %>%
+  filter(success_rate == min(success_rate, na.rm = TRUE)) %>%
+  select(day, success_rate) %>%
+  pull(day)

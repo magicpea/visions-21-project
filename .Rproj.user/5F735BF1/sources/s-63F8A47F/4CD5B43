@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1630789989647.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "374795582",
+    "id" : "4CD5B43",
+    "lastKnownWriteTime" : 1581367815,
+    "last_content_update" : 1581367815,
+    "path" : "~/Desktop/Info201/a4-data-wrangling-magicpea/assignment.R",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "52,4",
+        "scrollLine" : "41"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
