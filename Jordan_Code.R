@@ -73,12 +73,15 @@ profile_separate$list_numbers <- list_numbers
 list_profiles <- profile_separate
 small_dataset <- merge(small_dataset, list_profiles, by = "profile_separate")
 
+small_dataset <- read.csv("~/Downloads/OOI_code.csv")
+
 # for loop that flags potential thin layers
-profile_list <- unique(small_dataset$profile_separate)
+profile_list <- unique(small_dataset$list_numbers)
 potential_thin_layers <- NULL
 for (profile in profile_list){
   print(profile)
-  fluoro_small <- small_dataset[small_dataset$profile_separate == profile,]
+  fluoro_small <- small_dataset[small_dataset$list_numbers == profile,]
+  fluoro_small <- subset(fluoro_small, fluoro_a > 0)
   avg_chl <- mean(fluoro_small$fluoro_a)
   peak_chl <- max(fluoro_small$fluoro_a)
   if (peak_chl >= 3*avg_chl){
@@ -106,11 +109,15 @@ thin_layers <- NULL
 for (profile in thin_profiles){
   profile_less <- profile - 1
   profile_more <- profile + 1
-  profile_less_test <- subset(potential_thin_layers, profile == profile_less)
-  profile_more_test <- subset(potential_thin_layers, profile == profile_more)
-  if (is.null(profile_less_test) == FALSE | is.null(profile_more_test) == FALSE){
+  less_test <- which(thin_profiles == profile_less)
+  profile_less_test <- thin_profiles[less_test]
+  more_test <- which(thin_profiles == profile_more)
+  profile_more_test <- thin_profiles[more_test]
+  if (length(profile_less_test) != 0 | length(profile_more_test) != 0){
+    fluoro_small <- small_dataset[small_dataset$list_numbers == profile,]
     to_bind <- NULL
     to_bind$fluoro_a <- fluoro_small$fluoro_a
+    to_bind <- as.data.frame(to_bind)
     to_bind$pressure <- fluoro_small$pressure
     to_bind$time <- fluoro_small$time
     to_bind$profile <- profile
