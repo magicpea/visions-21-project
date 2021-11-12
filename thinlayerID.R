@@ -2,7 +2,7 @@
 
 # Sorting our data (METHOD 1):
 # Positive slope = data we want ??? (ask Jordan about this)
-# Put it in a new dataset of just what we want
+# Put it in a new dataset of just what we want 
 # Cut different columns and rows out based on profile data
 
 # Criteria for thin layers:
