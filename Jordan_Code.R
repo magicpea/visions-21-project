@@ -3,7 +3,6 @@ library(tidyverse)
 library(ncdf4)
 library(IDPmisc)
 
-<<<<<<< HEAD
 # #get files
 # nc_data <- nc_open("~/Downloads/flor_20190616-20190916.nc") #depends on your directory
 # 
@@ -64,7 +63,6 @@ library(IDPmisc)
 #   smaller_dataset <- fluoro[start_index:end_index_real,]
 #   smaller_dataset$profile_separate <- start_index
 #   small_dataset <- rbind(smaller_dataset, small_dataset)
-=======
 #get files
 nc_data <- nc_open("~/Downloads/flor_20190616-20190916.nc") #depends on your directory
 
@@ -135,13 +133,12 @@ profile_separate$list_numbers <- list_numbers
 list_profiles <- profile_separate
 small_dataset <- merge(small_dataset, list_profiles, by = "profile_separate")
 
-small_dataset <- read.csv("~/Downloads/OOI_code.csv")
+small_dataset <- read.csv("~/data/OOI_code.csv")
 
->>>>>>> 17fe488b5ce5a1755960092bf23e54d6a421222e
 # for loop that flags potential thin layers
 profile_list <- unique(small_dataset$list_numbers)
 potential_thin_layers <- NULL
-for (profile in profile_list){
+for (profile in profile_list){ 
   print(profile)
   fluoro_small <- small_dataset[small_dataset$list_numbers == profile,]
   fluoro_small <- subset(fluoro_small, fluoro_a > 0)
