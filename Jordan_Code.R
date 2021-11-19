@@ -192,6 +192,40 @@ for (profile in thin_profiles){
 #export thin layer list
 thin_layers <- write.csv(thin_layers, "~/Downloads/thin_layers.csv")
 
+# visualization
+thin_layers <- read.csv("~/Downloads/thin_layers.csv")
+
+a <- ggplot(thin_layers) +
+  geom_point(aes(x=fluoro_a, y=pressure, color = profile)) +
+  theme_bw() +
+  scale_y_reverse() +
+  xlab("Chlorophyll a fluorescence (mg/m^3)") +
+  ylab("Depth (m)")
+
+thin_layers$profile <- as.character(thin_layers$profile)
+
+profile_list <- as.character(unique(thin_layers$profile))
+for (profile_number in profile_list){
+  
+  print(profile_number)
+  
+  a <- NULL
+  
+  thin_layers_small <- subset(thin_layers, profile == profile_number)
+  
+  png(paste0("~/Downloads/OOI/graphs_2019/", profile_number, ".png"),width=12, height=12, unit="in", res=100)
+  a <- ggplot(thin_layers_small) +
+    geom_point(aes(x=fluoro_a, y=pressure)) +
+    theme_bw() +
+    scale_y_reverse() +
+    xlab("Chlorophyll a fluorescence (mg/m^3)") +
+    ylab("Depth (m)") +
+    ggtitle(profile_number)
+  print(a)
+  dev.off()
+  
+}
+
 # #plot all fluoro data
 # png("~/Downloads/all_fluoro.png",width=12, height=12, unit="in", res=100)
 # a <- ggplot(fluoro)+geom_point(aes(x=fluoro_a,y=pressure))+theme_bw()+scale_y_reverse()+xlab("Chlorophyll a fluorescence (mg/m^3)")+ylab("Depth (m)")
