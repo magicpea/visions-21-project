@@ -144,7 +144,7 @@ for (profile in profile_list){
   fluoro_small <- subset(fluoro_small, fluoro_a > 0)
   avg_chl <- mean(fluoro_small$fluoro_a)
   peak_chl <- max(fluoro_small$fluoro_a)
-  if (peak_chl >= 3*avg_chl){
+  if (peak_chl >= 3*avg_chl & peak_chl > 1){
     peak_width_find <- peaks(x=fluoro_small$fluoro_a, y=fluoro_small$pressure)
     peak_width_find <- subset(peak_width_find, x > 0)
     peak_width <- max(peak_width_find$w)
