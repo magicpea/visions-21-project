@@ -144,7 +144,7 @@ for (profile in profile_list){
   fluoro_small <- subset(fluoro_small, fluoro_a > 0)
   avg_chl <- mean(fluoro_small$fluoro_a)
   peak_chl <- max(fluoro_small$fluoro_a)
-  if (peak_chl >= 3*avg_chl){
+  if (peak_chl >= 3*avg_chl & peak_chl > 1){
     peak_width_find <- peaks(x=fluoro_small$fluoro_a, y=fluoro_small$pressure)
     peak_width_find <- subset(peak_width_find, x > 0)
     peak_width <- max(peak_width_find$w)
@@ -192,51 +192,68 @@ for (profile in thin_profiles){
 #export thin layer list
 thin_layers <- write.csv(thin_layers, "~/Downloads/thin_layers.csv")
 
-# #plot all fluoro data
-# png("~/Downloads/all_fluoro.png",width=12, height=12, unit="in", res=100)
-# a <- ggplot(fluoro)+geom_point(aes(x=fluoro_a,y=pressure))+theme_bw()+scale_y_reverse()+xlab("Chlorophyll a fluorescence (mg/m^3)")+ylab("Depth (m)")
-# a
-# dev.off()
+# visualization
+thin_layers <- read.csv("~/Downloads/thin_layers.csv")
 
-# #plot month of August
-# time1 <- "2019-08-01 00:00:00"
-# time2 <- "2019-08-31 23:59:59"
-# fluoro_august <- subset(fluoro, time > time1)
-# fluoro_august <- subset(fluoro_august, time < time2)
-# png("~/Downloads/august_fluoro.png",width=12, height=12, unit="in", res=100)
-# b <- ggplot(fluoro_august)+geom_point(aes(x=fluoro_a,y=pressure))+theme_bw()+scale_y_reverse()+xlab("Chlorophyll a fluorescence (mg/m^3)")+ylab("Depth (m)")
-# b
-# dev.off()
+a <- ggplot(thin_layers) +
+  geom_point(aes(x=fluoro_a, y=pressure, color = profile)) +
+  theme_bw() +
+  scale_y_reverse() +
+  xlab("Chlorophyll a fluorescence (mg/m^3)") +
+  ylab("Depth (m)")
 
-# #plot first week of August
-# time3 <- "2019-08-07 23:59:59"
-# fluoro_august_wk <- subset(fluoro_august, time < time3)
-# png("~/Downloads/august1to7_fluoro.png",width=12, height=12, unit="in", res=100)
-# c <- ggplot(fluoro_august_wk)+geom_point(aes(x=fluoro_a,y=pressure))+theme_bw()+scale_y_reverse()+xlab("Chlorophyll a fluorescence (mg/m^3)")+ylab("Depth (m)")
-# c
-# dev.off()
-# 
-# #plot August 5
-# time4 <- "2019-08-05 00:00:00"
-# time5 <- "2019-08-05 23:59:59"
-# fluoro_august_5 <- subset(fluoro_august, time > time4)
-# fluoro_august_5 <- subset(fluoro_august_5, time < time5)
-# png("~/Downloads/august5_line_fluoro.png",width=12, height=12, unit="in", res=100)
-# d <- ggplot(fluoro_august_5)+geom_path(aes(x=fluoro_a,y=pressure))+theme_bw()+scale_y_reverse()+xlab("Chlorophyll a fluorescence (mg/m^3)")+ylab("Depth (m)")
-# d
-# dev.off()
+thin_layers$profile <- as.character(thin_layers$profile)
 
-#could bin according to profile number and then use that as the legend
+profile_list <- as.character(unique(thin_layers$profile))
+for (profile_number in profile_list){
+  
+  print(profile_number)
+  
+  a <- NULL
+  
+  thin_layers_small <- subset(thin_layers, profile == profile_number)
+  
+  png(paste0("~/Downloads/OOI/graphs_2019/", profile_number, ".png"),width=12, height=12, unit="in", res=100)
+  a <- ggplot(thin_layers_small) +
+    geom_point(aes(x=fluoro_a, y=pressure)) +
+    theme_bw() +
+    scale_y_reverse() +
+    xlab("Chlorophyll a fluorescence (mg/m^3)") +
+    ylab("Depth (m)") +
+    ggtitle(profile_number)
+  print(a)
+  dev.off()
+  
+  png(paste0("~/Downloads/OOI/graphs_2019/", profile_number, "_oxygen.png"),width=12, height=12, unit="in", res=100)
+  a <- ggplot(thin_layers_small) +
+    geom_point(aes(x=oxygen, y=pressure)) +
+    theme_bw() +
+    scale_y_reverse() +
+    xlab("Oxygen Concentration") +
+    ylab("Depth (m)") +
+    ggtitle(profile_number)
+  print(a)
+  dev.off()
+  
+}
 
-## THE CODE BELOW DOESN'T WORK
-#fluoro_august_5$profile <- NULL
-#for (i in 1:(nrow(fluoro_august_5 -1))){
-  #if (fluoro_august_5$pressure[i+1] - fluoro_august_5$pressure[i] < -20)
-    #fluoro_august_5$profile[i] <- "no"
-  #else fluoro_august_5$profile[i] <- "same_profile"
-#}
+#time of thin layers
+time_df <- NULL
+for (profile_number in profile_list){
+  thin_layers_small <- subset(thin_layers, profile == profile_number)
+  temp <- NULL
+  temp$time <- thin_layers_small$time[1]
+  temp <- as.data.frame(temp)
+  temp$peak_chl <- max(thin_layers_small$fluoro_a)
+  time_df <- rbind(time_df, temp)
+}
 
-#check <- subset(fluoro_august_5, profile == "no")
-
-#deep_fluoro_aug5 <- subset(fluoro_august_5, pressure > 185)
-#ggplot(deep_fluoro_aug5)+geom_path(aes(x=fluoro_a,y=pressure))+theme_bw()+scale_y_reverse()+xlab("Chlorophyll a fluorescence (mg/m^3)")+ylab("Depth (m)")
+png("~/Downloads/OOI/graphs_2019/overall_thin_layers.png",width=12, height=12, unit="in", res=100)
+a <- ggplot(time_df) +
+  geom_point(aes(x=time, y=peak_chl)) +
+  theme_bw() +
+  xlab("Time") +
+  ylab("Peak Chlorophyll-a Fluorescence (mg/m^3)") +
+  ggtitle("Thin Layer Detections Over Time")
+print(a)
+dev.off()
