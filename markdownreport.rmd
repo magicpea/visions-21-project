@@ -1,6 +1,6 @@
 ---
 title: "MarkdownReport"
-author: "Marie"
+author: "Marie and Connor"
 date: "12/7/2021"
 output: html_document
 ---
