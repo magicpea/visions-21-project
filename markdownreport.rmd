@@ -1,7 +1,7 @@
 ---
-title: "MarkdownReport"
-author: "Marie and Connor"
-date: "12/7/2021"
+title: "Markdown Report: Thin Layers Research"
+author: "Connor and Marie"
+date: "12/21/2021"
 output: html_document
 ---
 
@@ -10,32 +10,30 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # Identification of Thin Layers
-
-## Meet our Research Team
-
-## VISIONS '21 Cruise
+This project intends to create an algorithm to identify thin layers based on CTD datasets. The research is conducted by the OOI cabled array team and their student participants, Connor, Marie, Jenn, and Jordan, with each participating student on the cruise linked here: (https://interactiveoceans.washington.edu/visions-21-students/) 
 
 ## What are Thin Layers ?
+Thin layers are "concentrated aggregations of phytoplankton and zooplankton in coastal and offshore waters that are vertically compressed to thicknesses ranging from several centimeters up to a few meters and are horizontally extensive" They are important to research because: 
+1. They are a topic of future interest and future research
+2. Useful in efficiently isolating thin layers from large data files
+3. Can control and predict the formation of thin layers
 
 ### Criteria for Identifying Thin Layers
 - Must be at most 5 m thick
 - Must be a pattern of repeating profiles
 - Chlorophyll concentration peak must be at least 3x more than the background data
+This criteria was included in the algorithm through the R-Studio code
+Here is the criteria for thin layers in code format with for loops and if statements used to use the criteria:
+![Code for Criteria](Screenshot(23).png)
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
-```
+### Datasets used
+Our group used datasets from 2019 CTD data in Rob Fatland's repository, (https://github.com/robfatland/ocean/tree/main/profiles), in order to get the dataset running in R-studio to create visualizations and the desired algorithm
 
 ## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+Here are some of the plots our code visualized while removing some of the profiles that were unneeded. 
+![Chlorophyll a concentration vs Depth profiles
+January 2019 Oregon Slope Base
+1](Screenshot(26).png)
+![Chlorophyll a concentration vs Depth profiles
+January 2019 Oregon Slope Base
+2](Screenshot(27).png)
